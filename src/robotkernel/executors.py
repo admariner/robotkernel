@@ -74,7 +74,7 @@ def execute_ipywidget(
     arguments,
     values,
 ):
-    header = rpa and "Tasks" or "Test Cases"
+    header = "Tasks" if rpa else "Test Cases"
     code += f"""\
 
 *** {header} ***

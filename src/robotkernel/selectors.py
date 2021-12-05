@@ -396,12 +396,10 @@ if (node) { node.parentNode.removeChild(node); }
 def get_selenium_css_selector_completions(needle, driver):
     needle = needle[4:]
     unresolved = []
-    results = []
     matches = []
     if not needle:
         needle = get_selenium_needle_from_user(driver)
-    if needle:
-        results = driver.find_elements_by_css_selector(needle)
+    results = driver.find_elements_by_css_selector(needle) if needle else []
     for result in visible_or_all(results):
         id_ = result.get_attribute("id")
         if " " in needle:  # always include simmer result for complex needles
@@ -425,10 +423,8 @@ def get_selenium_css_selector_completions(needle, driver):
 def get_selenium_tag_selector_completions(needle, driver):
     needle = needle[4:]
     unresolved = []
-    results = []
     matches = []
-    if needle:
-        results = driver.find_elements_by_css_selector(needle)
+    results = driver.find_elements_by_css_selector(needle) if needle else []
     for result in visible_or_all(results):
         id_ = result.get_attribute("id")
         if id_:
@@ -446,24 +442,22 @@ def get_selenium_tag_selector_completions(needle, driver):
 
 def get_selenium_link_selector_completions(needle, driver):
     needle = needle[5:]
-    matches = []
     if needle:
         results = driver.find_elements_by_partial_link_text(needle)
     else:
         results = driver.find_elements_by_xpath("//a")
-    for result in visible_or_all(results):
-        if result.text:
-            matches.append((f"link:{result.text}", result))
-    return matches
+    return [
+        (f"link:{result.text}", result)
+        for result in visible_or_all(results)
+        if result.text
+    ]
 
 
 def get_selenium_xpath_selector_completions(needle, driver):
     needle = needle[6:]
-    results = []
     matches = []
     unresolved = []
-    if needle:
-        results = driver.find_elements_by_xpath(needle)
+    results = driver.find_elements_by_xpath(needle) if needle else []
     for result in visible_or_all(results):
         id_ = result.get_attribute("id")
         if id_:

@@ -52,15 +52,11 @@ def build_suite(code: str, cell_history: Dict[str, str], data_only: bool = False
     SuiteBuilder(suite, defaults).visit(ast)
 
     # Strip duplicate keywords
-    keywords = {}
-    for keyword in suite.resource.keywords:
-        keywords[keyword.name] = keyword
+    keywords = {keyword.name: keyword for keyword in suite.resource.keywords}
     suite.resource.keywords._items = list(keywords.values())
 
     # Strip duplicate variables
-    variables = {}
-    for variable in suite.resource.variables:
-        variables[variable.name] = variable
+    variables = {variable.name: variable for variable in suite.resource.variables}
     suite.resource.variables._items = list(variables.values())
 
     # Detect RPA

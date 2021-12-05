@@ -84,14 +84,12 @@ def lunr_builder(ref, fields):
 
 def readable_keyword(s):
     """Return keyword with only the first letter in title case."""
-    if s and not s.startswith("*") and not s.startswith("["):
-        if s.count("."):
-            library, name = s.rsplit(".", 1)
-            return library + "." + name[0].title() + name[1:].lower()
-        else:
-            return s[0].title() + s[1:].lower()
-    else:
+    if not s or s.startswith("*") or s.startswith("["):
         return s
+    if not s.count("."):
+        return s[0].title() + s[1:].lower()
+    library, name = s.rsplit(".", 1)
+    return library + "." + name[0].title() + name[1:].lower()
 
 
 def detect_robot_context(code, cursor_pos):
@@ -101,18 +99,17 @@ def detect_robot_context(code, cursor_pos):
     context_parts = code.rsplit("***", 2)
     if len(context_parts) != 3:
         return "__root__"
+    context_name = context_parts[1].strip().lower()
+    if context_name == "settings":
+        return "__settings__"
+    elif line.lstrip() == line:
+        return "__root__"
+    elif context_name in ["tasks", "test cases"]:
+        return "__tasks__"
+    elif context_name == "keywords":
+        return "__keywords__"
     else:
-        context_name = context_parts[1].strip().lower()
-        if context_name == "settings":
-            return "__settings__"
-        elif line.lstrip() == line:
-            return "__root__"
-        elif context_name in ["tasks", "test cases"]:
-            return "__tasks__"
-        elif context_name == "keywords":
-            return "__keywords__"
-        else:
-            return "__root__"
+        return "__root__"
 
 
 NAME_REGEXP = re.compile("`(.+?)`")
@@ -233,12 +230,11 @@ def to_mime_and_metadata(obj) -> (dict, dict):  # noqa: C901
     try:
         if isinstance(obj, str):
             return {"text/html": f"<pre>{to_html(obj)}</pre>".replace("\\n", "\n")}, {}
-        else:
-            data, metadata = JSON(data=obj, expanded=True)._repr_json_()
-            return (
-                {"application/json": data, "text/html": f"<pre>{to_html(obj)}</pre>"},
-                metadata,
-            )
+        data, metadata = JSON(data=obj, expanded=True)._repr_json_()
+        return (
+            {"application/json": data, "text/html": f"<pre>{to_html(obj)}</pre>"},
+            metadata,
+        )
     except (TypeError, JSONDecodeError):
         pass
     try:

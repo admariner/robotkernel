@@ -174,10 +174,7 @@ class ReturnValueListener:
 
 
 def clear_drivers(drivers, type_):
-    remained = []
-    for driver in drivers:
-        if driver.get("type") != type_:
-            remained.append(driver)
+    remained = [driver for driver in drivers if driver.get("type") != type_]
     drivers.clear()
     drivers.extend(remained)
 
@@ -189,10 +186,12 @@ def get_webdrivers(cache, type_):
         conn = cache._connections[idx]
         if conn in cache._closed:
             continue
-        aliases = []
-        for alias, idx_ in cache._aliases.items():
-            if (idx + 1) == idx_:
-                aliases.append(alias)
+        aliases = [
+            alias
+            for alias, idx_ in cache._aliases.items()
+            if (idx + 1) == idx_
+        ]
+
         drivers.append(
             dict(
                 instance=conn,
