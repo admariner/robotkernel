@@ -42,7 +42,7 @@ def NotebookReader():  # noqa: N802
 
             for cell in notebook.cells:
                 # Skip non-code cells
-                if not cell.cell_type == "code":
+                if cell.cell_type != "code":
                     continue
 
                 # Execute %%python module magics
@@ -60,9 +60,8 @@ def NotebookReader():  # noqa: N802
 
             if HAS_RF32_PARSER:
                 return data
-            else:
-                robotfile = BytesIO(data.encode("UTF-8"))
-                return RobotReader().read(robotfile, rawdata, ipynbfile.name)
+            robotfile = BytesIO(data.encode("UTF-8"))
+            return RobotReader().read(robotfile, rawdata, ipynbfile.name)
 
     return NotebookReader()
 
@@ -70,11 +69,10 @@ def NotebookReader():  # noqa: N802
 def _get_ipynb_file(old):
     def _get_file(self, source, accept_text):
         path = self._get_path(source, accept_text)
-        if path and os.path.splitext(path)[1].lower() == ".ipynb":
-            file = StringIO(NotebookReader().read(path, ""))
-            return file, os.path.basename(path), True
-        else:
+        if not path or os.path.splitext(path)[1].lower() != ".ipynb":
             return old(self, source, accept_text)
+        file = StringIO(NotebookReader().read(path, ""))
+        return file, os.path.basename(path), True
 
     return _get_file
 

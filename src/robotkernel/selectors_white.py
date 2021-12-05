@@ -44,12 +44,11 @@ class PickSnipTool(Form):
         screenshot = Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppPArgb)
         graphics = Graphics.FromImage(screenshot)
         graphics.CopyFromScreen(0, 0, 0, 0, screenshot.Size)
-        if as_bytes:
-            fp = MemoryStream()
-            screenshot.Save(fp, ImageFormat.Png)
-            return bytes(bytearray(fp.ToArray()))
-        else:
+        if not as_bytes:
             return screenshot
+        fp = MemoryStream()
+        screenshot.Save(fp, ImageFormat.Png)
+        return bytes(bytearray(fp.ToArray()))
 
     @staticmethod
     def pick(snip=False):
